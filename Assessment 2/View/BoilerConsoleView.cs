@@ -24,6 +24,7 @@ public class BoilerConsoleView
     public void DisplayWelcome()
     {
         _layout.Notify("Boiler Controller Initialized.", NotifyType.Info);
+        Console.Beep();
     }
 
     /// <summary>

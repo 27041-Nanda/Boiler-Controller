@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using AppLogger;
 using BoilerController.Models;
 using BoilerController.Repository;
@@ -67,7 +63,7 @@ public class BoilerService : IBoilerService
 
             _logger.Info("Interlock Switch Toggled", $"Interlock Switch toggled to {_boiler.InterlockState}.");
 
-            // Safety enforcement: If switch opened while starting or running, immediately lockout
+
             if (_boiler.InterlockState == InterlockSwitchState.Open &&
                 (_boiler.Status == BoilerStatus.PrePurge ||
                  _boiler.Status == BoilerStatus.Ignition ||
@@ -190,7 +186,7 @@ public class BoilerService : IBoilerService
     {
         try
         {
-            // 1. Pre-Purge Cycle (10 seconds)
+
             lock (_stateLock)
             {
                 _boiler.Status = BoilerStatus.PrePurge;
@@ -215,7 +211,7 @@ public class BoilerService : IBoilerService
 
             _logger.Info("Pre-Purge Cycle", "Pre-Purge completed.");
 
-            // 2. Ignition Phase (10 seconds)
+
             lock (_stateLock)
             {
                 _boiler.Status = BoilerStatus.Ignition;
@@ -240,7 +236,7 @@ public class BoilerService : IBoilerService
 
             _logger.Info("Ignition Phase", "Ignition phase completed.");
 
-            // 3. Operational State
+
             lock (_stateLock)
             {
                 _boiler.Status = BoilerStatus.Operational;
