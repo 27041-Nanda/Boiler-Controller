@@ -31,7 +31,7 @@ public class BoilerLogRepository : IBoilerLogRepository
     }
 
     /// <summary>
-    /// Appends a log entry to the log file according to CSV specifications.
+    /// Appends a log entry to the CSV file.
     /// </summary>
     /// <param name="entry">Log entry model.</param>
     public void AppendLog(LogEntryModel entry)
