@@ -1,5 +1,3 @@
-using System;
-
 namespace AppLogger;
 
 /// <summary>
@@ -13,7 +11,7 @@ public class LogEntry
     public DateTime Timestamp { get; set; } = DateTime.Now;
 
     /// <summary>
-    /// Gets or sets the event designation.
+    /// Gets or sets the event type.
     /// </summary>
     public string Event { get; set; } = string.Empty;
 

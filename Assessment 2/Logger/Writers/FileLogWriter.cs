@@ -1,10 +1,7 @@
-using System;
-using System.IO;
-
 namespace AppLogger.Writers;
 
 /// <summary>
-/// Appends log entries to a physical disk file.
+/// Appends log entries to a file.
 /// </summary>
 public class FileLogWriter : ILogWriter
 {

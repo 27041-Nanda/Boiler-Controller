@@ -1,6 +1,6 @@
-﻿using BoilerController.Models;
+﻿using AppLogger;
+using BoilerController.Models;
 using BoilerController.Repository;
-
 namespace BoilerController.Services;
 
 /// <summary>
