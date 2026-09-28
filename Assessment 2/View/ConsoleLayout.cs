@@ -8,6 +8,11 @@ public class ConsoleLayout
     private readonly int _contentRow = 5;
     private readonly int _width;
 
+    /// <summary>
+    /// Initializes a new instance of the ConsoleLayout class and displays the application title in a formatted console
+    /// window.
+    /// </summary>
+    /// <param name="appTitle">The title of the application to display in the console header.</param>
     public ConsoleLayout(string appTitle)
     {
         Console.Clear();
@@ -36,6 +41,11 @@ public class ConsoleLayout
         Console.ResetColor();
     }
 
+    /// <summary>
+    /// Notify the through console notify bar.
+    /// </summary>
+    /// <param name="message"></param>
+    /// <param name="type"></param>
     public void Notify(string message, NotifyType type = NotifyType.Info)
     {
         int savedLeft = Console.CursorLeft;
@@ -70,6 +80,10 @@ public class ConsoleLayout
         Console.SetCursorPosition(savedLeft, savedTop);
     }
 
+
+    /// <summary>
+    /// Used to clear the contents in the screen.
+    /// </summary>
     public void ClearContent()
     {
         for (int row = _contentRow; row < Console.WindowHeight; row++)
@@ -80,11 +94,20 @@ public class ConsoleLayout
         Console.SetCursorPosition(0, _contentRow);
     }
 
+    /// <summary>
+    /// Used to write content to the screen.
+    /// </summary>
+    /// <param name="line"></param>
     public void WriteContent(string line)
     {
         Console.WriteLine($"  {line}");
     }
 
+    /// <summary>
+    /// Used to display any user prompts.
+    /// </summary>
+    /// <param name="label"></param>
+    /// <returns></returns>
     public string? Prompt(string label)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
@@ -93,6 +116,9 @@ public class ConsoleLayout
         return Console.ReadLine();
     }
 
+    /// <summary>
+    /// Displays a prompt instructing the user to press any key and waits for a key press.
+    /// </summary>
     public void PressAnyKey()
     {
         Console.WriteLine();

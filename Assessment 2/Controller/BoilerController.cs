@@ -42,7 +42,7 @@ public class BoilerController
                     try
                     {
                         _boilerService.StartBoilerSequence();
-                        _view.NotifyInfo("Startup sequence started. Press S to stop, E to error, T to toggle, M for menu.");
+                        _view.NotifyInfo("Startup sequence started. Press [S] to stop, [E] to error, [T] to toggle, [M] for menu.");
 
                         // Monitor active cycle while allowing keyboard actions on the fly
                         while (_boilerService.IsSequenceActive)
