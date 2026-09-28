@@ -1,4 +1,4 @@
-﻿namespace Assessment_2
+﻿namespace BoilerController
 {
     internal class Program
     {
