@@ -88,7 +88,7 @@ public class ConsoleLayout
     public string? Prompt(string label)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write($"!!! {label}");
+        Console.Write($">>> {label}");
         Console.ResetColor();
         return Console.ReadLine();
     }
