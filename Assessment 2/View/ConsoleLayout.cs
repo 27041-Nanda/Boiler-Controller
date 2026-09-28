@@ -47,9 +47,9 @@ public class ConsoleLayout
 
         var (prefix, prefixColor, bgColor) = type switch
         {
-            NotifyType.Success => (" ✔OK  ", ConsoleColor.White, ConsoleColor.DarkGreen),
-            NotifyType.Error => (" ✘ ERR ", ConsoleColor.White, ConsoleColor.DarkRed),
-            _ => (" ℹ INFO", ConsoleColor.Black, ConsoleColor.DarkCyan)
+            NotifyType.Success => (" OK  ", ConsoleColor.White, ConsoleColor.DarkGreen),
+            NotifyType.Error => (" ERR ", ConsoleColor.White, ConsoleColor.DarkRed),
+            _ => (" INFO", ConsoleColor.Black, ConsoleColor.DarkCyan)
         };
 
         Console.Write("  ");
