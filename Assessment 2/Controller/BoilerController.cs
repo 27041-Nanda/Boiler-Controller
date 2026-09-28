@@ -1,6 +1,6 @@
-﻿using BoilerController.Services;
+using BoilerController.Models;
+using BoilerController.Services;
 using BoilerController.View;
-
 
 namespace BoilerController.Controller;
 
@@ -39,23 +39,56 @@ public class BoilerController
             switch (input?.Trim())
             {
                 case "1":
-                    _view.NotifyInfo("Start Boiler Sequence will be implemented in Phase 2.");
+                    try
+                    {
+                        _view.NotifyInfo("Initiating Boiler Start Sequence...");
+                        _boilerService.StartBoilerSequence((phase, remaining) => _view.DisplayPhaseCountdown(phase, remaining));
+                        _view.NotifySuccess("Boiler startup sequence completed successfully. Status: Operational.");
+                    }
+                    catch (Exception ex)
+                    {
+                        _view.NotifyError(ex.Message);
+                    }
                     _view.PressAnyKey();
                     break;
 
                 case "2":
-                    _view.NotifyInfo("Stop Boiler Sequence will be implemented in Phase 3.");
+                    try
+                    {
+                        _boilerService.StopBoilerSequence("Stopped manually by operator");
+                        _view.NotifySuccess("Boiler sequence stopped. System transitioned to Lockout.");
+                    }
+                    catch (Exception ex)
+                    {
+                        _view.NotifyError(ex.Message);
+                    }
                     _view.PressAnyKey();
                     break;
 
                 case "3":
-                    _view.NotifyInfo("Simulate Boiler Error will be implemented in Phase 3.");
+                    try
+                    {
+                        string errorDesc = _view.PromptErrorDescription();
+                        _boilerService.SimulateError(errorDesc);
+                        _view.NotifyError($"Error: {errorDesc}. System in Lockout.");
+                    }
+                    catch (Exception ex)
+                    {
+                        _view.NotifyError(ex.Message);
+                    }
                     _view.PressAnyKey();
                     break;
 
                 case "4":
-                    var newState = _boilerService.ToggleInterlockSwitch();
-                    _view.NotifySuccess($"Interlock Switch toggled to {newState}.");
+                    try
+                    {
+                        var newState = _boilerService.ToggleInterlockSwitch();
+                        _view.NotifySuccess($"Interlock Switch toggled to {newState}.");
+                    }
+                    catch (InterlockSafetyException ex)
+                    {
+                        _view.NotifyError(ex.Message);
+                    }
                     _view.PressAnyKey();
                     break;
 

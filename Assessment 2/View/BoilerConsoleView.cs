@@ -1,4 +1,4 @@
-﻿using AppCore;
+using AppCore;
 using BoilerController.Models;
 
 namespace BoilerController.View;
@@ -52,6 +52,30 @@ public class BoilerConsoleView
     public string? PromptMenuChoice()
     {
         return _layout.Prompt("Select an option (1-7): ");
+    }
+
+    /// <summary>
+    /// Prompts the user for a simulated failure description.
+    /// </summary>
+    /// <returns>The description of the error.</returns>
+    public string PromptErrorDescription()
+    {
+        string? input = _layout.Prompt("Enter simulated error description (or press Enter for default): ");
+
+        return string.IsNullOrWhiteSpace(input) ? "Error While Operating" : input.Trim();
+    }
+
+    /// <summary>
+    /// Displays countdown for the active simulation phase.
+    /// </summary>
+    /// <param name="phaseName">The name of the phase.</param>
+    /// <param name="remainingSeconds">Seconds left in the countdown.</param>
+    public void DisplayPhaseCountdown(string phaseName, int remainingSeconds)
+    {
+        _layout.ClearContent();
+        _layout.WriteContent($"Active Phase: {phaseName}");
+        _layout.WriteContent($"Time Remaining: {remainingSeconds} seconds...");
+        _layout.WriteContent("Please wait while the cycle completes safely.");
     }
 
     /// <summary>

@@ -49,7 +49,7 @@ public class ConsoleLayout
         {
             NotifyType.Success => (" OK  ", ConsoleColor.White, ConsoleColor.DarkGreen),
             NotifyType.Error => (" ERR ", ConsoleColor.White, ConsoleColor.DarkRed),
-            _ => (" INFO", ConsoleColor.Black, ConsoleColor.DarkCyan)
+            _ => ("INFO", ConsoleColor.Black, ConsoleColor.DarkCyan)
         };
 
         Console.Write("  ");
@@ -88,7 +88,7 @@ public class ConsoleLayout
     public string? Prompt(string label)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write($"  ▶ {label}");
+        Console.Write($"!!! {label}");
         Console.ResetColor();
         return Console.ReadLine();
     }
