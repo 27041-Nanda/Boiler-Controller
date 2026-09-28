@@ -105,7 +105,8 @@ public class BoilerController
                     break;
 
                 case "6":
-                    _view.NotifyInfo("Event Log Viewer will be implemented in Phase 4.");
+                    var logs = _boilerService.GetEventLogs();
+                    _view.DisplayEventLogs(logs);
                     _view.PressAnyKey();
                     break;
 
@@ -115,7 +116,7 @@ public class BoilerController
                     break;
 
                 default:
-                    _view.NotifyError("Invalid option selected. Please enter a number between 1 and 7.");
+                    _view.NotifyError("Invalid option selected. Please enter a valid number between 1 and 7.");
                     _view.PressAnyKey();
                     break;
             }

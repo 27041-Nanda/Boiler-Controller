@@ -42,4 +42,10 @@ public interface IBoilerService
     /// </summary>
     /// <param name="errorDescription">Description of the simulated failure.</param>
     void SimulateError(string errorDescription);
+
+    /// <summary>
+    /// Retrieves all recorded event log records.
+    /// </summary>
+    /// <returns>Read-only list of log entries.</returns>
+    IReadOnlyList<LogEntryModel> GetEventLogs();
 }

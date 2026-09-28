@@ -1,4 +1,4 @@
-﻿using BoilerController.Models;
+using BoilerController.Models;
 
 namespace BoilerController.Repository;
 
@@ -30,7 +30,7 @@ public class BoilerLogRepository : IBoilerLogRepository
     }
 
     /// <summary>
-    /// Appends a log entry to the CSV file.
+    /// Appends a log entry to the log file according to CSV specifications.
     /// </summary>
     /// <param name="entry">Log entry model.</param>
     public void AppendLog(LogEntryModel entry)
@@ -39,6 +39,45 @@ public class BoilerLogRepository : IBoilerLogRepository
         {
             string line = $"{entry.Timestamp:yyyy-MM-dd HH:mm:ss}, {entry.Event}, {entry.EventData}";
             File.AppendAllText(_filePath, line + Environment.NewLine);
+        }
+    }
+
+    /// <summary>
+    /// Retrieves and parses all entries from the Boiler Log file.
+    /// </summary>
+    /// <returns>List of parsed log records.</returns>
+    public IReadOnlyList<LogEntryModel> GetAllLogs()
+    {
+        lock (_lockObject)
+        {
+            var logs = new List<LogEntryModel>();
+            if (!File.Exists(_filePath))
+            {
+                return logs;
+            }
+
+            string[] lines = File.ReadAllLines(_filePath);
+
+            // Skip CSV header line (index 0)
+            for (int i = 1; i < lines.Length; i++)
+            {
+                string line = lines[i];
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    continue;
+                }
+
+                string[] parts = line.Split(',', 3);
+                if (parts.Length >= 2)
+                {
+                    DateTime.TryParse(parts[0].Trim(), out DateTime timestamp);
+                    string eventName = parts[1].Trim();
+                    string eventData = parts.Length == 3 ? parts[2].Trim() : string.Empty;
+                    logs.Add(new LogEntryModel(timestamp, eventName, eventData));
+                }
+            }
+
+            return logs;
         }
     }
 

@@ -101,7 +101,7 @@ public class BoilerService : IBoilerService
             throw new BoilerOperationException("Cannot start boiler: Run Interlock switch must be Closed.");
         }
 
-        // 1. Pre-Purge Cycle (10 seconds)
+
         _boiler.Status = BoilerStatus.PrePurge;
         for (int second = 10; second >= 1; second--)
         {
@@ -111,7 +111,7 @@ public class BoilerService : IBoilerService
 
         _logger.Info("Pre-Purge Cycle", "Pre-Purge completed.");
 
-        // 2. Ignition Phase (10 seconds)
+
         _boiler.Status = BoilerStatus.Ignition;
         for (int second = 10; second >= 1; second--)
         {
@@ -121,7 +121,7 @@ public class BoilerService : IBoilerService
 
         _logger.Info("Ignition Phase", "Ignition phase completed.");
 
-        // 3. Operational State
+
         _boiler.Status = BoilerStatus.Operational;
         _logger.Info("Operational State", "Boiler now operational.");
     }
@@ -158,5 +158,14 @@ public class BoilerService : IBoilerService
 
         _boiler.Status = BoilerStatus.Lockout;
         _logger.Error("Boiler Error", $"Error: {errorDescription}. System in Lockout.");
+    }
+
+    /// <summary>
+    /// Retrieves all recorded event logs from repository.
+    /// </summary>
+    /// <returns>List of log entry models.</returns>
+    public IReadOnlyList<LogEntryModel> GetEventLogs()
+    {
+        return _logRepository.GetAllLogs();
     }
 }

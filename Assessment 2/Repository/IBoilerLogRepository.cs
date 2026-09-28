@@ -1,9 +1,9 @@
-﻿namespace BoilerController.Repository;
-
 using BoilerController.Models;
 
+namespace BoilerController.Repository;
+
 /// <summary>
-/// Contract for persisting boiler controller event logs.
+/// Contract for persisting and retrieving boiler controller event logs.
 /// </summary>
 public interface IBoilerLogRepository
 {
@@ -12,4 +12,10 @@ public interface IBoilerLogRepository
     /// </summary>
     /// <param name="entry">The log entry to append.</param>
     void AppendLog(LogEntryModel entry);
+
+    /// <summary>
+    /// Retrieves all recorded event logs from the persistent log file.
+    /// </summary>
+    /// <returns>A read-only collection of log entry models.</returns>
+    IReadOnlyList<LogEntryModel> GetAllLogs();
 }

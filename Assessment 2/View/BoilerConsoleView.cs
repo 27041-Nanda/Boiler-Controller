@@ -62,7 +62,7 @@ public class BoilerConsoleView
     {
         string? input = _layout.Prompt("Enter simulated error description (or press Enter for default): ");
 
-        return string.IsNullOrWhiteSpace(input) ? "Error While Operating" : input.Trim();
+        return string.IsNullOrWhiteSpace(input) ? "Flame Failure Detected" : input.Trim();
     }
 
     /// <summary>
@@ -76,6 +76,32 @@ public class BoilerConsoleView
         _layout.WriteContent($"Active Phase: {phaseName}");
         _layout.WriteContent($"Time Remaining: {remainingSeconds} seconds...");
         _layout.WriteContent("Please wait while the cycle completes safely.");
+    }
+
+    /// <summary>
+    /// Displays all recorded log records in a formatted table.
+    /// </summary>
+    /// <param name="logs">Collection of log entries.</param>
+    public void DisplayEventLogs(IReadOnlyList<LogEntryModel> logs)
+    {
+        _layout.ClearContent();
+        _layout.WriteContent("====================== EVENT LOG VIEWER ======================");
+        if (logs.Count == 0)
+        {
+            _layout.WriteContent("No event records found in Boiler Log.txt.");
+            return;
+        }
+
+        _layout.WriteContent(string.Format("{0,-20} | {1,-26} | {2}", "TIMESTAMP", "EVENT", "EVENT DATA"));
+        _layout.WriteContent(new string('-', 76));
+
+        foreach (var log in logs)
+        {
+            string timeText = log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss");
+            _layout.WriteContent(string.Format("{0,-20} | {1,-26} | {2}", timeText, log.Event, log.EventData));
+        }
+
+        _layout.WriteContent("==============================================================");
     }
 
     /// <summary>
