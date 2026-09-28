@@ -1,7 +1,6 @@
-﻿namespace BoilerController.Services;
-
-
 using BoilerController.Models;
+
+namespace BoilerController.Services;
 
 /// <summary>
 /// Contract for boiler business logic and simulation operations.
@@ -25,4 +24,22 @@ public interface IBoilerService
     /// <param name="message">Feedback message for the operation.</param>
     /// <returns>True if reset succeeded; otherwise, false.</returns>
     bool ResetLockout(out string message);
+
+    /// <summary>
+    /// Initiates the multi-phase boiler startup sequence with pre-purge and ignition timers.
+    /// </summary>
+    /// <param name="progressCallback">Callback reporting active phase and remaining seconds.</param>
+    void StartBoilerSequence(Action<string, int> progressCallback);
+
+    /// <summary>
+    /// Stops the boiler sequence and transitions status back to Lockout.
+    /// </summary>
+    /// <param name="reason">Description of the stop request.</param>
+    void StopBoilerSequence(string reason);
+
+    /// <summary>
+    /// Simulates a boiler operational failure (allowed only in Operational mode).
+    /// </summary>
+    /// <param name="errorDescription">Description of the simulated failure.</param>
+    void SimulateError(string errorDescription);
 }

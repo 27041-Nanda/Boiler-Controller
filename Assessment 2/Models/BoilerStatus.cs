@@ -13,5 +13,21 @@ public enum BoilerStatus
     /// <summary>
     /// Ready state indicating system is reset and interlock is closed.
     /// </summary>
-    Ready
+    Ready,
+
+    /// <summary>
+    /// PrePurge state 
+    /// </summary>
+    PrePurge,
+
+    /// <summary>
+    /// Ignition state
+    /// </summary>
+    Ignition,
+
+
+    /// <summary>
+    /// Operational state
+    /// </summary>
+    Operational
 }
