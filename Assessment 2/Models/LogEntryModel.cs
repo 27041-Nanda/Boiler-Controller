@@ -1,4 +1,4 @@
-﻿namespace Soliton.BoilerController.Models;
+﻿namespace BoilerController.Models;
 
 /// <summary>
 /// Represents an event log record.
