@@ -8,4 +8,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="View\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
 </Project>
