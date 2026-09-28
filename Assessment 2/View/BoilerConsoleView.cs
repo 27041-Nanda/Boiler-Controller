@@ -4,7 +4,7 @@ using BoilerController.Models;
 namespace BoilerController.View;
 
 /// <summary>
-/// Manages enhanced console interface presentation with visual customization and polish.
+/// Console presentation layer with customized visual layout, cycle progress, and paginated logs.
 /// </summary>
 public class BoilerConsoleView
 {
@@ -15,11 +15,11 @@ public class BoilerConsoleView
     /// </summary>
     public BoilerConsoleView()
     {
-        _layout = new ConsoleLayout("BOILER STARTUP CONTROLLER");
+        _layout = new ConsoleLayout("BOILER CONTROLLER");
     }
 
     /// <summary>
-    /// Displays the welcoming initialization banner.
+    /// Displays the welcome banner on application start.
     /// </summary>
     public void DisplayWelcome()
     {
@@ -27,21 +27,22 @@ public class BoilerConsoleView
     }
 
     /// <summary>
-    /// Displays current status dashboard and styled main menu options.
+    /// Displays current status dashboard and styled menu options.
     /// </summary>
     /// <param name="boiler">Current boiler state.</param>
-    public void DisplayMenu(BoilerModel boiler)
+    /// <param name="remainingSeconds">Remaining seconds in timed cycle, if any.</param>
+    public void DisplayMenu(BoilerModel boiler, int remainingSeconds = 0)
     {
         _layout.ClearContent();
-        DisplayDashboard(boiler);
+        DisplayDashboard(boiler, remainingSeconds);
 
         _layout.WriteContent("┌────────────────────── PRIMARY MENU ───────────────────────┐");
         _layout.WriteContent("│  1. Start Boiler Sequence                                 │");
-        _layout.WriteContent("│  2. Stop Boiler Sequence                                  │");
-        _layout.WriteContent("│  3. Simulate Boiler Error (Operational Mode Only)         │");
+        _layout.WriteContent("│  2. Stop Boiler Sequence (Active in all running stages)   │");
+        _layout.WriteContent("│  3. Simulate Boiler Error (Allowed in all stages)         │");
         _layout.WriteContent("│  4. Toggle Run Interlock Switch (Open / Closed)           │");
         _layout.WriteContent("│  5. Reset Lockout                                         │");
-        _layout.WriteContent("│  6. View Event Log                                        │");
+        _layout.WriteContent("│  6. View Event Log (Paginated with graceful erasing)      │");
         _layout.WriteContent("│  7. Exit Application                                      │");
         _layout.WriteContent("└───────────────────────────────────────────────────────────┘");
     }
@@ -49,7 +50,7 @@ public class BoilerConsoleView
     /// <summary>
     /// Prompts the user for a menu choice.
     /// </summary>
-    /// <returns>Input string entered by user.</returns>
+    /// <returns>Selected choice string.</returns>
     public string? PromptMenuChoice()
     {
         return _layout.Prompt("Select an option (1-7): ");
@@ -58,19 +59,19 @@ public class BoilerConsoleView
     /// <summary>
     /// Prompts the user for a simulated failure description.
     /// </summary>
-    /// <returns>The description of the error.</returns>
+    /// <returns>Description of error.</returns>
     public string PromptErrorDescription()
     {
-        string? input = _layout.Prompt("Enter simulated error description (Press Enter for default): ");
+        string? input = _layout.Prompt("Enter error description (press Enter for default): ");
 
         return string.IsNullOrWhiteSpace(input) ? "Flame Failure Detected" : input.Trim();
     }
 
     /// <summary>
-    /// Displays an animated graphical progress bar during timed cycle transitions.
+    /// Displays live countdown with an ASCII progress bar and available quick action keys.
     /// </summary>
-    /// <param name="phaseName">Active cycle phase designation.</param>
-    /// <param name="remainingSeconds">Remaining seconds.</param>
+    /// <param name="phaseName">Active phase name.</param>
+    /// <param name="remainingSeconds">Seconds left.</param>
     public void DisplayPhaseCountdown(string phaseName, int remainingSeconds)
     {
         _layout.ClearContent();
@@ -86,44 +87,102 @@ public class BoilerConsoleView
         _layout.WriteContent($"│  Progress:      [{progressBar}] {percent,3}%               │");
         _layout.WriteContent($"│  Time Left:     {remainingSeconds,2} seconds remaining                      │");
         _layout.WriteContent("└───────────────────────────────────────────────────────────┘");
-        _layout.WriteContent("  * Safety monitored - Opening interlock will trigger lockout.");
+        _layout.WriteContent("  Keys: [S]top | [E]rror Simulate | [T]oggle Switch | [M]enu");
     }
 
     /// <summary>
-    /// Displays all recorded log records in an elegant framed table.
+    /// Displays recorded log records with pagination and graceful clearing between pages.
     /// </summary>
     /// <param name="logs">Collection of log entries.</param>
     public void DisplayEventLogs(IReadOnlyList<LogEntryModel> logs)
     {
-        _layout.ClearContent();
-        _layout.WriteContent("┌─────────────────────────── AUDIT EVENT LOGS ───────────────────────────┐");
+        const int pageSize = 5;
+        int totalLogs = logs.Count;
 
-        if (logs.Count == 0)
+        if (totalLogs == 0)
         {
+            _layout.ClearContent();
+            _layout.WriteContent("┌─────────────────────────── AUDIT EVENT LOGS ───────────────────────────┐");
             _layout.WriteContent("│  No event records found in Boiler Log.txt.                             │");
             _layout.WriteContent("└────────────────────────────────────────────────────────────────────────┘");
+            _layout.PressAnyKey();
 
             return;
         }
 
-        _layout.WriteContent(string.Format("│ {0,-19} │ {1,-26} │ {2,-20} │", "TIMESTAMP", "EVENT", "EVENT DATA"));
-        _layout.WriteContent("├─────────────────────┼────────────────────────────┼──────────────────────┤");
+        int totalPages = (int)Math.Ceiling((double)totalLogs / pageSize);
+        int currentPage = 1;
+        bool inViewer = true;
 
-        foreach (var log in logs)
+        while (inViewer)
         {
-            string timeText = log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss");
-            string eventName = log.Event.Length > 26 ? log.Event.Substring(0, 23) + "..." : log.Event;
-            string eventData = log.EventData.Length > 20 ? log.EventData.Substring(0, 17) + "..." : log.EventData;
+            // Gracefully erase previous page content completely
+            _layout.ClearContent();
 
-            _layout.WriteContent(string.Format("│ {0,-19} │ {1,-26} │ {2,-20} │", timeText, eventName, eventData));
+            int startIndex = (currentPage - 1) * pageSize;
+            int count = Math.Min(pageSize, totalLogs - startIndex);
+
+            _layout.WriteContent("┌─────────────────────────── AUDIT EVENT LOGS ───────────────────────────┐");
+            _layout.WriteContent(string.Format("│  Page {0} of {1}  (Total Events: {2}){3}│", currentPage, totalPages, totalLogs, new string(' ', Math.Max(0, 39 - totalLogs.ToString().Length))));
+            _layout.WriteContent("├─────────────────────┼────────────────────────────┼──────────────────────┤");
+            _layout.WriteContent(string.Format("│ {0,-19} │ {1,-26} │ {2,-20} │", "TIMESTAMP", "EVENT", "EVENT DATA"));
+            _layout.WriteContent("├─────────────────────┼────────────────────────────┼──────────────────────┤");
+
+            for (int i = 0; i < count; i++)
+            {
+                var log = logs[startIndex + i];
+                string timeText = log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss");
+                string eventName = log.Event.Length > 26 ? log.Event.Substring(0, 23) + "..." : log.Event;
+                string eventData = log.EventData.Length > 20 ? log.EventData.Substring(0, 17) + "..." : log.EventData;
+
+                _layout.WriteContent(string.Format("│ {0,-19} │ {1,-26} │ {2,-20} │", timeText, eventName, eventData));
+            }
+
+            _layout.WriteContent("└─────────────────────┴────────────────────────────┴──────────────────────┘");
+            _layout.WriteContent("  [N]ext Page  |  [P]revious Page  |  [Q]uit to Main Menu");
+
+            string? navChoice = _layout.Prompt("Navigation command (N/P/Q): ");
+            string command = navChoice?.Trim().ToUpperInvariant() ?? string.Empty;
+
+            switch (command)
+            {
+                case "N":
+                    if (currentPage < totalPages)
+                    {
+                        currentPage++;
+                    }
+                    else
+                    {
+                        _layout.Notify("You are already on the last page.", NotifyType.Info);
+                    }
+                    break;
+
+                case "P":
+                    if (currentPage > 1)
+                    {
+                        currentPage--;
+                    }
+                    else
+                    {
+                        _layout.Notify("You are already on the first page.", NotifyType.Info);
+                    }
+                    break;
+
+                case "Q":
+                case "EXIT":
+                case "":
+                    inViewer = false;
+                    break;
+
+                default:
+                    _layout.Notify("Invalid input. Enter 'N' for next, 'P' for previous, or 'Q' to quit.", NotifyType.Error);
+                    break;
+            }
         }
-
-        _layout.WriteContent("└─────────────────────┴────────────────────────────┴──────────────────────┘");
-        _layout.WriteContent($"  Total recorded events: {logs.Count}");
     }
 
     /// <summary>
-    /// Displays an informational notification banner.
+    /// Displays an informational message.
     /// </summary>
     /// <param name="message">Message text.</param>
     public void NotifyInfo(string message)
@@ -132,7 +191,7 @@ public class BoilerConsoleView
     }
 
     /// <summary>
-    /// Displays a success notification banner.
+    /// Displays a success message.
     /// </summary>
     /// <param name="message">Message text.</param>
     public void NotifySuccess(string message)
@@ -141,7 +200,7 @@ public class BoilerConsoleView
     }
 
     /// <summary>
-    /// Displays an error notification banner.
+    /// Displays an error message.
     /// </summary>
     /// <param name="message">Message text.</param>
     public void NotifyError(string message)
@@ -150,20 +209,26 @@ public class BoilerConsoleView
     }
 
     /// <summary>
-    /// Prompts the user to press any key to proceed.
+    /// Prompts user to press any key before returning to menu.
     /// </summary>
     public void PressAnyKey()
     {
         _layout.PressAnyKey();
     }
 
-    private void DisplayDashboard(BoilerModel boiler)
+    private void DisplayDashboard(BoilerModel boiler, int remainingSeconds = 0)
     {
-        string statusBadge = $"[{boiler.Status.ToString().ToUpperInvariant()}]";
+        string statusText = boiler.Status.ToString().ToUpperInvariant();
+        if ((boiler.Status == BoilerStatus.PrePurge || boiler.Status == BoilerStatus.Ignition) && remainingSeconds > 0)
+        {
+            statusText += $" ({remainingSeconds}S)";
+        }
+
+        string statusBadge = $"[{statusText}]";
         string switchBadge = $"[{boiler.InterlockState.ToString().ToUpperInvariant()}]";
 
         _layout.WriteContent("╔═════════════════════ SYSTEM DASHBOARD ════════════════════╗");
-        _layout.WriteContent($"║  System Status:  {statusBadge,-14}  Run Interlock: {switchBadge,-10}║");
+        _layout.WriteContent(string.Format("║  System Status:  {0,-14}  Run Interlock: {1,-10}║", statusBadge, switchBadge));
         _layout.WriteContent("╚═══════════════════════════════════════════════════════════╝");
     }
 }

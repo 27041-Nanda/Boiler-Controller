@@ -1,50 +1,62 @@
+using System;
+using System.Collections.Generic;
 using BoilerController.Models;
 
 namespace BoilerController.Services;
 
 /// <summary>
-/// Contract for boiler business logic and simulation operations.
+/// Service contract for managing boiler logic and state transitions.
 /// </summary>
 public interface IBoilerService
 {
     /// <summary>
-    /// Gets the current boiler state model.
+    /// Gets the current boiler state.
     /// </summary>
     BoilerModel CurrentBoiler { get; }
 
     /// <summary>
-    /// Toggles the position of the run interlock switch.
+    /// Gets the seconds remaining in the active cycle.
     /// </summary>
-    /// <returns>The newly toggled switch state.</returns>
+    int RemainingSeconds { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether a timed cycle (Pre-Purge or Ignition) is active.
+    /// </summary>
+    bool IsSequenceActive { get; }
+
+    /// <summary>
+    /// Toggles the run interlock switch between Open and Closed. Trips boiler if opened while running.
+    /// </summary>
+    /// <returns>The new switch state.</returns>
     InterlockSwitchState ToggleInterlockSwitch();
 
     /// <summary>
     /// Resets the lockout status if the interlock switch is closed.
     /// </summary>
-    /// <param name="message">Feedback message for the operation.</param>
+    /// <param name="message">Feedback message for the user.</param>
     /// <returns>True if reset succeeded; otherwise, false.</returns>
     bool ResetLockout(out string message);
 
     /// <summary>
-    /// Initiates the multi-phase boiler startup sequence with pre-purge and ignition timers.
+    /// Starts the asynchronous boiler startup sequence.
     /// </summary>
-    /// <param name="progressCallback">Callback reporting active phase and remaining seconds.</param>
-    void StartBoilerSequence(Action<string, int> progressCallback);
+    /// <param name="onProgress">Optional callback reporting phase and remaining seconds.</param>
+    void StartBoilerSequence(Action<string, int>? onProgress = null);
 
     /// <summary>
-    /// Stops the boiler sequence and transitions status back to Lockout.
+    /// Stops the boiler during any active stage (Pre-Purge, Ignition, or Operational).
     /// </summary>
-    /// <param name="reason">Description of the stop request.</param>
+    /// <param name="reason">Reason description.</param>
     void StopBoilerSequence(string reason);
 
     /// <summary>
-    /// Simulates a boiler operational failure (allowed only in Operational mode).
+    /// Simulates a failure at any stage of operation, immediately tripping to Lockout.
     /// </summary>
-    /// <param name="errorDescription">Description of the simulated failure.</param>
+    /// <param name="errorDescription">Failure description.</param>
     void SimulateError(string errorDescription);
 
     /// <summary>
-    /// Retrieves all recorded event log records.
+    /// Retrieves all recorded event logs.
     /// </summary>
     /// <returns>Read-only list of log entries.</returns>
     IReadOnlyList<LogEntryModel> GetEventLogs();
