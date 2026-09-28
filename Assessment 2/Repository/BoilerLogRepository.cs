@@ -1,7 +1,6 @@
 ﻿using BoilerController.Models;
-using BoilerController.Repository;
 
-namespace Soliton.BoilerController.Repository;
+namespace BoilerController.Repository;
 
 /// <summary>
 /// Implements persistent event logging parallel to the application executable.
